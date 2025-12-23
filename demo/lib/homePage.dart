@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../product/product_card.dart';
 import '../data/dummy_products.dart';
@@ -11,11 +10,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomepageState extends State<HomePage> {
-  final user = FirebaseAuth.instance.currentUser;
+  int _currentBannerIndex = 0;
+  int _selectedNavIndex = 0;
 
-  signout() async {
-    await FirebaseAuth.instance.signOut();
-  }
+  final List<String> bannerImages = [
+    "assets/banner.png",
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -35,14 +35,50 @@ class _HomepageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.asset(
-                "assets/banner.jpg",
-                height: 180,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+            // Banner Carousel
+            Column(
+              children: [
+                SizedBox(
+                  height: 180,
+                  width: double.infinity,
+                  child: PageView.builder(
+                    onPageChanged: (index) {
+                      setState(() {
+                        _currentBannerIndex = index;
+                      });
+                    },
+                    itemCount: bannerImages.length,
+                    itemBuilder: (context, index) {
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          bannerImages[index],
+                          fit: BoxFit.cover,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 8),
+                // Dot indicators
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    bannerImages.length,
+                    (index) => Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      width: _currentBannerIndex == index ? 8 : 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: _currentBannerIndex == index
+                            ? Colors.white
+                            : Colors.grey,
+                        borderRadius: BorderRadius.circular(3),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: 20),
             Container(
@@ -60,7 +96,7 @@ class _HomepageState extends State<HomePage> {
                       style: TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         hintText: "Search products",
-                        hintStyle: TextStyle(color: Colors.white38),
+                        hintStyle: TextStyle(color: Colors.white),
                         border: InputBorder.none,
                       ),
                     ),
@@ -101,21 +137,75 @@ class _HomepageState extends State<HomePage> {
         ),
       ),
 
-      // BOTTOM NAVIGATION
+      // Bottom navbar
       bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedNavIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedNavIndex = index;
+          });
+        },
         backgroundColor: Colors.black,
         selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white54,
+        unselectedItemColor: const Color(0xFFE09D3B),
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
         items: [
           BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined), label: "Home"),
+            icon: Image.asset(
+              'assets/icons/menu.png',
+              width: 24,
+              height: 24,
+              color: _selectedNavIndex == 0
+                  ? Colors.white
+                  : const Color(0xFFE09D3B),
+            ),
+            label: "Home",
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_outline), label: "Wishlist"),
+            icon: Image.asset(
+              'assets/icons/wishlist.png',
+              width: 24,
+              height: 24,
+              color: _selectedNavIndex == 1
+                  ? Colors.white
+                  : const Color(0xFFE09D3B),
+            ),
+            label: "Wish List",
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.camera_alt_outlined), label: "AR"),
+            icon: Image.asset(
+              'assets/icons/ar.png',
+              width: 24,
+              height: 24,
+              color: _selectedNavIndex == 2
+                  ? Colors.white
+                  : const Color(0xFFE09D3B),
+            ),
+            label: "AR View",
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart_outlined), label: "Cart"),
-          BottomNavigationBarItem(icon: Icon(Icons.menu), label: "More"),
+            icon: Image.asset(
+              'assets/icons/cart.png',
+              width: 24,
+              height: 24,
+              color: _selectedNavIndex == 3
+                  ? Colors.white
+                  : const Color(0xFFE09D3B),
+            ),
+            label: "Cart",
+          ),
+          BottomNavigationBarItem(
+            icon: Image.asset(
+              'assets/icons/custom.png',
+              width: 24,
+              height: 24,
+              color: _selectedNavIndex == 4
+                  ? Colors.white
+                  : const Color(0xFFE09D3B),
+            ),
+            label: "Custom",
+          ),
         ],
       ),
     );
